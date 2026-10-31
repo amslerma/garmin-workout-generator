@@ -2,8 +2,19 @@
 name = "garmin-workout-generator"
 version = "0.1.0"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "fit-tool",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+make-workout = "garmin_workout_generator.cli:main"
 
 [build-system]
 requires = ["setuptools>=61"]
-build-backend = "setuptools.build_meta" 
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.package-data]
+garmin_workout_generator = ["*.json"]

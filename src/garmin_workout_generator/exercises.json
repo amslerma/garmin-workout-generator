@@ -1,0 +1,23 @@
+{
+  "trx_row": "TRX Row",
+  "trx_squat": "TRX Squat",
+  "trx_chest_press": "TRX Chest Press",
+  "trx_bicep_curl": "TRX Bicep Curl",
+  "trx_tricep_extension": "TRX Tricep Ext",
+  "trx_lunge": "TRX Lunge",
+  "trx_pike": "TRX Pike",
+  "trx_hamstring_curl": "TRX Ham Curl",
+  "trx_y_fly": "TRX Y-Fly",
+  "push_up": "Push-Up",
+  "squat": "Air Squat",
+  "lunge": "Lunge",
+  "burpee": "Burpee",
+  "plank": "Plank",
+  "side_plank": "Side Plank",
+  "sit_up": "Sit-Up",
+  "crunch": "Crunch",
+  "mountain_climber": "Mountain Climber",
+  "jumping_jack": "Jumping Jack",
+  "glute_bridge": "Glute Bridge",
+  "run": "Run"
+}

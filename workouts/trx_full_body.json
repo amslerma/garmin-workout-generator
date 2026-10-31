@@ -1,0 +1,20 @@
+{
+  "name": "TRX Full Body",
+  "sport": "training",
+  "steps": [
+    { "type": "warmup", "duration": { "time": 300 }, "note": "Easy mobility" },
+    {
+      "type": "repeat",
+      "rounds": 3,
+      "steps": [
+        { "type": "exercise", "exercise": "trx_row", "duration": { "reps": 12 } },
+        { "type": "rest", "duration": { "time": 20 } },
+        { "type": "exercise", "exercise": "push_up", "duration": { "reps": 10 } },
+        { "type": "rest", "duration": { "time": 20 } },
+        { "type": "exercise", "exercise": "trx_squat", "duration": { "time": 40 } },
+        { "type": "rest", "duration": { "time": 60 } }
+      ]
+    },
+    { "type": "cooldown", "duration": { "lap_button": true } }
+  ]
+}
