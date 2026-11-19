@@ -70,6 +70,7 @@ Each JSON file in `workouts/` is one workout:
 | `type` | `warmup`, `exercise`, `rest`, `cooldown`, `repeat` |
 | `exercise` | Key from the exercise library, required for `exercise` steps |
 | `duration` | Exactly one of `{"time": seconds}`, `{"reps": count}`, `{"lap_button": true}` |
+| `target` | Optional pace range per km: `{"pace": {"fast": "5:30", "slow": "6:15"}}` |
 | `note` | Optional text for the step |
 | `rounds` | For `repeat` blocks: how many times to run the inner steps |
 

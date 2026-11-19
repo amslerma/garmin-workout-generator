@@ -31,12 +31,19 @@ class Duration:
     value: int | None = None  # None only for LAP_BUTTON
 
 
+@dataclass(frozen=True)
+class PaceTarget:
+    fast_sec_per_km: int
+    slow_sec_per_km: int
+
+
 @dataclass
 class Step:
     type: StepType
     duration: Duration
     exercise: str | None = None  # e.g. "trx_row"; shown as the step name
     note: str | None = None
+    target: PaceTarget | None = None
 
 
 @dataclass

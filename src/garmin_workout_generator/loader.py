@@ -7,12 +7,14 @@ Every check raises WorkoutConfigError with a location such as
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
-from .model import Duration, DurationKind, Repeat, Step, StepType, Workout
+from .model import Duration, DurationKind, PaceTarget, Repeat, Step, StepType, Workout
 
 SUPPORTED_SPORTS = {"training", "running"}
+PACE_PATTERN = re.compile(r"(\d{1,2}):([0-5]\d)")
 
 
 class WorkoutConfigError(ValueError):
@@ -102,7 +104,8 @@ def _parse_step(item: dict, where: str) -> Step:
         raise WorkoutConfigError(f"{where}.note: must be a string")
 
     duration = _parse_duration(item.get("duration"), f"{where}.duration")
-    return Step(type=step_type, duration=duration, exercise=exercise, note=note)
+    target = _parse_target(item["target"], f"{where}.target") if "target" in item else None
+    return Step(type=step_type, duration=duration, exercise=exercise, note=note, target=target)
 
 
 def _parse_duration(raw: Any, where: str) -> Duration:
@@ -125,6 +128,34 @@ def _parse_duration(raw: Any, where: str) -> Duration:
         return Duration(DurationKind(key), value)
 
     raise WorkoutConfigError(f"{where}: unknown duration '{key}' (use 'time', 'reps' or 'lap_button')")
+
+
+def _parse_target(raw: Any, where: str) -> PaceTarget:
+    _require_type(raw, dict, where)
+    if set(raw) != {"pace"}:
+        raise WorkoutConfigError(f"{where}: must contain only 'pace' (got {sorted(raw) or 'nothing'})")
+
+    pace = raw["pace"]
+    pace_where = f"{where}.pace"
+    _require_type(pace, dict, pace_where)
+    unknown = set(pace) - {"fast", "slow"}
+    if unknown:
+        raise WorkoutConfigError(f"{pace_where}: unknown keys {sorted(unknown)} (use 'fast' and 'slow')")
+
+    fast = _parse_pace(pace.get("fast"), f"{pace_where}.fast")
+    slow = _parse_pace(pace.get("slow"), f"{pace_where}.slow")
+    if fast >= slow:
+        raise WorkoutConfigError(f"{pace_where}: 'fast' must be faster than 'slow' (a lower time per km)")
+    return PaceTarget(fast_sec_per_km=fast, slow_sec_per_km=slow)
+
+
+def _parse_pace(raw: Any, where: str) -> int:
+    """Turn a pace such as "5:30" (min:sec per km) into seconds per km."""
+    match = PACE_PATTERN.fullmatch(raw) if isinstance(raw, str) else None
+    seconds = int(match[1]) * 60 + int(match[2]) if match else 0
+    if seconds == 0:
+        raise WorkoutConfigError(f"{where}: must be a pace per km like \"5:30\" (got {raw!r})")
+    return seconds
 
 
 def _require_type(value: Any, expected: type, where: str) -> None:

@@ -3,8 +3,8 @@ import json
 import pytest
 
 from garmin_workout_generator.loader import WorkoutConfigError, load_workout, parse_workout
-from garmin_workout_generator.model import DurationKind, Repeat, StepType
-from garmin_workout_generator.writer import flatten, step_label
+from garmin_workout_generator.model import DurationKind, PaceTarget, Repeat, StepType
+from garmin_workout_generator.writer import flatten, speed_range, step_label, write_fit
 
 
 def minimal(**overrides):
@@ -72,6 +72,62 @@ def test_validation_errors(bad, message):
     with pytest.raises(WorkoutConfigError) as exc:
         parse_workout(bad)
     assert message in str(exc.value)
+
+
+def run_step(target):
+    return minimal(steps=[
+        {"type": "exercise", "exercise": "run", "duration": {"lap_button": True}, "target": target},
+    ])
+
+
+def test_step_without_target_has_none():
+    assert parse_workout(minimal()).steps[0].target is None
+
+
+def test_pace_target_parsed_to_seconds_per_km():
+    w = parse_workout(run_step({"pace": {"fast": "5:30", "slow": "6:15"}}))
+    assert w.steps[0].target == PaceTarget(fast_sec_per_km=330, slow_sec_per_km=375)
+
+
+@pytest.mark.parametrize("target, message", [
+    ("5:30", "steps[0].target"),
+    ({}, "steps[0].target"),
+    ({"hr": 150}, "steps[0].target"),
+    ({"pace": "5:30"}, "steps[0].target.pace"),
+    ({"pace": {"fast": "5:30"}}, "steps[0].target.pace.slow"),
+    ({"pace": {"fast": "5:30", "slow": "6:15", "avg": "6:00"}}, "steps[0].target.pace"),
+    ({"pace": {"fast": "5:75", "slow": "6:15"}}, "steps[0].target.pace.fast"),
+    ({"pace": {"fast": "0:00", "slow": "6:15"}}, "steps[0].target.pace.fast"),
+    ({"pace": {"fast": 5.5, "slow": "6:15"}}, "steps[0].target.pace.fast"),
+    ({"pace": {"fast": "6:15", "slow": "5:30"}}, "faster than"),
+    ({"pace": {"fast": "5:30", "slow": "5:30"}}, "faster than"),
+])
+def test_invalid_pace_targets(target, message):
+    with pytest.raises(WorkoutConfigError) as exc:
+        parse_workout(run_step(target))
+    assert message in str(exc.value)
+
+
+def test_pace_converts_to_speed_with_slow_as_low():
+    low, high = speed_range(PaceTarget(fast_sec_per_km=330, slow_sec_per_km=375))
+    assert low == pytest.approx(1000 / 375)   # slow pace = low speed
+    assert high == pytest.approx(1000 / 330)  # fast pace = high speed
+
+
+def test_write_fit_stores_pace_as_speed_target(tmp_path):
+    pytest.importorskip("fit_tool")
+    from fit_tool.fit_file import FitFile
+    from fit_tool.profile.messages.workout_step_message import WorkoutStepMessage
+    from fit_tool.profile.profile_type import WorkoutStepTarget
+
+    out = write_fit(parse_workout(run_step({"pace": {"fast": "5:30", "slow": "6:15"}})), tmp_path / "w.fit")
+
+    records = FitFile.from_file(str(out)).records
+    step = next(r.message for r in records if isinstance(r.message, WorkoutStepMessage))
+    assert step.target_type == WorkoutStepTarget.SPEED.value
+    assert step.target_value == 0  # 0 = custom range rather than a watch zone
+    assert step.custom_target_speed_low == pytest.approx(1000 / 375, abs=0.001)
+    assert step.custom_target_speed_high == pytest.approx(1000 / 330, abs=0.001)
 
 
 def test_invalid_json_reports_line(tmp_path):

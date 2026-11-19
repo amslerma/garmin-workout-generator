@@ -27,8 +27,8 @@ import datetime
 from dataclasses import dataclass
 from pathlib import Path
 
-from .exercises import label_for
-from .model import Duration, Repeat, Step, StepType, Workout
+from .exercises import description_for, label_for
+from .model import Duration, PaceTarget, Repeat, Step, StepType, Workout
 
 
 @dataclass(frozen=True)
@@ -64,7 +64,6 @@ def exercise_ids(flat: list[FlatStep]) -> dict[str, int]:
             ids[f.step.exercise] = len(ids)
     return ids
 
-
 def step_label(step: Step) -> str:
     """Name shown for a step."""
     if step.exercise:
@@ -76,6 +75,15 @@ def step_label(step: Step) -> str:
         StepType.COOLDOWN: "Cool Down",
     }[step.type]
 
+def step_notes(step: Step) -> str | None:
+    """Notes for a step: its own note wins over the library description."""
+    if step.note:
+        return step.note
+    return description_for(step.exercise) if step.exercise else None
+
+def speed_range(target: PaceTarget) -> tuple[float, float]:
+    """(low, high) speed in m/s. FIT stores speed, so the slow pace is the low value."""
+    return 1000 / target.slow_sec_per_km, 1000 / target.fast_sec_per_km
 
 def write_fit(workout: Workout, out_path: str | Path) -> Path:
     # Imported here so the rest of the package (and the tests) work
@@ -130,12 +138,17 @@ def write_fit(workout: Workout, out_path: str | Path) -> Path:
             msg.workout_step_name = step_label(step)
             msg.intensity = intensity_for[step.type]
             _set_duration(msg, step.duration, WorkoutStepDuration)
-            msg.target_type = WorkoutStepTarget.OPEN
+            if step.target:
+                # target_type must be set first: it decides how the custom values are scaled.
+                msg.target_type = WorkoutStepTarget.SPEED
+                msg.target_value = 0  # 0 = custom range rather than a watch zone
+                msg.custom_target_speed_low, msg.custom_target_speed_high = speed_range(step.target)
+            else:
+                msg.target_type = WorkoutStepTarget.OPEN
             if step.exercise:
                 _set(msg, "exercise_category", ExerciseCategory.UNKNOWN)
                 _set(msg, "exercise_name", ids[step.exercise])
-            if step.note:
-                _set(msg, "notes", step.note)
+            if text := step_notes(step): _set(msg,"notes",text)
         fit_steps.append(msg)
 
     titles = []

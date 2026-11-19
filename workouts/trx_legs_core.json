@@ -1,0 +1,34 @@
+{
+  "name": "TRX Legs & Core",
+  "sport": "training",
+  "steps": [
+    { "type": "warmup", "duration": { "time": 300 }, "note": "Hip circles, leg swings, bodyweight squats" },
+    {
+      "type": "repeat",
+      "rounds": 3,
+      "steps": [
+        { "type": "exercise", "exercise": "trx_squat", "duration": { "reps": 15 } },
+        { "type": "rest", "duration": { "time": 20 } },
+        { "type": "exercise", "exercise": "trx_reverse_lunge", "duration": { "reps": 10 } },
+        { "type": "rest", "duration": { "time": 20 } },
+        { "type": "exercise", "exercise": "trx_hamstring_curl", "duration": { "reps": 12 } },
+        { "type": "rest", "duration": { "time": 20 } },
+        { "type": "exercise", "exercise": "glute_bridge", "duration": { "reps": 15 } },
+        { "type": "rest", "duration": { "time": 60 } }
+      ]
+    },
+    {
+      "type": "repeat",
+      "rounds": 2,
+      "steps": [
+        { "type": "exercise", "exercise": "trx_pike", "duration": { "reps": 8 } },
+        { "type": "rest", "duration": { "time": 20 } },
+        { "type": "exercise", "exercise": "trx_mountain_climber", "duration": { "time": 30 } },
+        { "type": "rest", "duration": { "time": 20 } },
+        { "type": "exercise", "exercise": "plank", "duration": { "time": 45 } },
+        { "type": "rest", "duration": { "time": 45 } }
+      ]
+    },
+    { "type": "cooldown", "duration": { "lap_button": true }, "note": "Stretch hips and hamstrings" }
+  ]
+}

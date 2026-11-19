@@ -1,0 +1,32 @@
+{
+  "name": "Run + Full Body + Core",
+  "sport": "training",
+  "steps": [
+    { "type": "exercise", "exercise": "run", "duration": { "lap_button": true }, "target": { "pace": { "fast": "5:30", "slow": "6:15" } }, "note": "2 km steady" },
+    { "type": "rest", "duration": { "time": 60 }, "note": "Catch breath, set up TRX" },
+    {
+      "type": "repeat",
+      "rounds": 3,
+      "steps": [
+        { "type": "exercise", "exercise": "trx_row", "duration": { "reps": 10 }, "note": "Lean back, pull chest to handles" },
+        { "type": "exercise", "exercise": "push_up", "duration": { "reps": 10 }, "note": "Body straight, chest to floor" },
+        { "type": "exercise", "exercise": "air_squat", "duration": { "reps": 15 }, "note": "Hips below knees, heels down" },
+        { "type": "exercise", "exercise": "trx_reverse_lunge", "duration": { "reps": 16 }, "note": "Hold TRX, step back, 8 per leg" },
+        { "type": "exercise", "exercise": "burpee", "duration": { "reps": 6 }, "note": "Chest to floor, jump and clap" },
+        { "type": "rest", "duration": { "time": 60 } }
+      ]
+    },
+    {
+      "type": "repeat",
+      "rounds": 2,
+      "steps": [
+        { "type": "exercise", "exercise": "trx_pike", "duration": { "reps": 8 }, "note": "Feet in TRX, lift hips high" },
+        { "type": "exercise", "exercise": "sit_up", "duration": { "reps": 15 }, "note": "Situp mat under back, touch toes" },
+        { "type": "exercise", "exercise": "plank", "duration": { "time": 40 }, "note": "Forearms, body straight, squeeze abs" },
+        { "type": "exercise", "exercise": "glute_bridge", "duration": { "reps": 15 }, "note": "On back, feet flat, push hips up" },
+        { "type": "rest", "duration": { "time": 30 } }
+      ]
+    },
+    { "type": "cooldown", "duration": { "lap_button": true }, "note": "Stretch hips, hamstrings, chest" }
+  ]
+}

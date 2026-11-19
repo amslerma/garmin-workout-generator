@@ -59,6 +59,7 @@ def main(argv: list[str] | None = None) -> int:
 def print_summary(workout) -> None:
     print(f"{workout.name} ({workout.sport})")
     unknown = set()
+    has_pace = False
     for i, flat in enumerate(flatten(workout)):
         if flat.is_repeat:
             print(f"  {i:2}  repeat steps {flat.repeat_from}-{i - 1} x{flat.rounds}")
@@ -67,12 +68,24 @@ def print_summary(workout) -> None:
         d = step.duration
         amount = {"time": f"{d.value}s", "reps": f"{d.value} reps",
                   "lap_button": "until lap"}[d.kind.value]
-        print(f"  {i:2}  {step_label(step):<20} {amount}")
+        pace = ""
+        if step.target:
+            has_pace = True
+            pace = (f"  pace {format_pace(step.target.fast_sec_per_km)}"
+                    f"-{format_pace(step.target.slow_sec_per_km)}/km")
+        print(f"  {i:2}  {step_label(step):<20} {amount}{pace}")
         if step.exercise and not is_known(step.exercise):
             unknown.add(step.exercise)
     if unknown:
         print(f"\nNote: not in the exercise library, name generated from key: "
               f"{', '.join(sorted(unknown))}")
+    if has_pace and workout.sport == "training":
+        print("\nNote: the watch may not show pace targets on a 'training' workout. "
+              "Check on a short run.")
+
+
+def format_pace(seconds: int) -> str:
+    return f"{seconds // 60}:{seconds % 60:02d}"
 
 
 if __name__ == "__main__":
